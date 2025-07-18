@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Name": "Dynamic Panel Adjuster",
+        "Description": "A script enabling autmoatic width and height adjustments for your plasma panels when a window gets maximized on your screen",
+        "Icon": "preferences-system-windows",
+
+        "Authors": [
+            {
+                "Email": "sverre.frogner.haugen@gmail.com",
+                "Name": "Sverre Haugen"
+            }
+        ],
+        "Id": "dynamic-panel-adjuster",
+        "Version": "1.0",
+        "License": "GPLv3",
+        "Website": "https://github.com/username/myscript"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "KPackageStructure": "KWin/Script",
+    "X-KDE-ConfigModule": "kwin/effects/configs/kcm_kwin4_genericscripted"
+}
