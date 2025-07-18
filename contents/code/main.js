@@ -73,6 +73,15 @@ if (!primaryOutput) {
 workspace.windowAdded.connect(function(window) {
 
     trackedWindows.add(window);
+
+    if (window.output === primaryOutput) {
+        const area = workspace.clientArea(KWin.MaximizeArea, window);
+        if (window.width === area.width && window.height === area.height) {
+            maximizedWindows.add(window);
+            sendPanelResize(maximizedParams);
+        }
+    }
+
     // this fires just _before_ any maximize/unmaximize
     window.maximizedAboutToChange.connect(function(mode) {
         if (mode === KWin.MaximizeFullArea) {
@@ -88,4 +97,59 @@ workspace.windowAdded.connect(function(window) {
             }
         }
     });
+
+    window.minimizedChanged.connect(function() {
+        if (window.minimized) {
+            // Window was minimized: remove from maximized set
+            maximizedWindows.delete(window);
+            if (maximizedWindows.size === 0) {
+                sendPanelResize(unmaximizedParams);
+            }
+        } else {
+            // Window was restored: if it’s still fully maximized, re-add
+            if (window.output === primaryOutput) {
+                const area = workspace.clientArea(KWin.MaximizeArea, window);
+                if (window.width === area.width && window.height === area.height) {
+                    // If set was empty, we need to enlarge panel again
+                    const wasEmpty = maximizedWindows.size === 0;
+                    maximizedWindows.add(window);
+                    if (wasEmpty) {
+                        sendPanelResize(maximizedParams);
+                    }
+                }
+            }
+        }
+    });
+
 });
+
+workspace.windowRemoved.connect(function(window) {
+    // If a maximized window closed, update set and possibly shrink panel
+    if (maximizedWindows.delete(window) && maximizedWindows.size === 0) {
+        sendPanelResize(unmaximizedParams);
+    }
+});
+
+// before a window actually gets minimized
+/*workspace.windowMinimizeRequested.connect(function(window) {
+    if (maximizedWindows.delete(window) && maximizedWindows.size === 0) {
+        sendPanelResize(unmaximizedParams);
+    }
+});*/
+
+// before a window is restored from minimized
+/*workspace.windowRestoreRequested.connect(function(window) {
+    if (window.output === primaryOutput) {
+        const area = workspace.clientArea(KWin.MaximizeArea, window);
+        if (window.width === area.width && window.height === area.height) {
+            const wasEmpty = maximizedWindows.size === 0;
+            maximizedWindows.add(window);
+            if (wasEmpty) {
+                sendPanelResize(maximizedParams);
+            }
+        }
+    }
+});*/
+
+
+
